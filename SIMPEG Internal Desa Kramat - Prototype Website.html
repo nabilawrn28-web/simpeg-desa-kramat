@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="id" class="h-full bg-slate-100">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SIMPEG Internal Desa Kramat - E-Logbook & Monitoring</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Inter & Plus Jakarta Sans -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    body { font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; }
+    .glass-effect { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); }
+  </style>
+</head>
+<body class="h-full flex flex-col text-slate-800 antialiased selection:bg-sky-500 selection:text-white">
+
+  <!-- ================================================================= -->
+  <!-- 1. LOGIN PORTAL SCREEN (TAMPILAN AWAL PERTAMA KALI) -->
+  <!-- ================================================================= -->
+  <div id="screenLogin" class="fixed inset-0 z-50 bg-slate-950 flex items-center justify-center p-4 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-slate-950 to-black overflow-y-auto">
+    <div class="w-full max-w-md my-auto">
+      <!-- Header Badge -->
+      <div class="text-center mb-8">
+        <div class="inline-flex items-center space-x-2 px-3 py-1.5 rounded-full bg-sky-500/10 border border-sky-400/20 text-sky-400 text-xs font-semibold uppercase tracking-wider mb-4">
+          <i class="fa-solid fa-shield-halved"></i>
+          <span>SIMPEG Desa Kramat</span>
+        </div>
+        <h1 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">Portal Kepegawaian Desa</h1>
+        <p class="text-xs sm:text-sm text-slate-400 mt-2">Aplikasi Pendamping E-Logbook & Kontrol Presensi SIEKAP</p>
+      </div>
+
+      <!-- Login Card -->
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-2xl backdrop-blur-xl relative">
+        <form onsubmit="handleLoginSubmit(event)" class="space-y-5">
+          <!-- Role Selector -->
+          <div>
+            <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Masuk Sebagai</label>
+            <div class="grid grid-cols-2 gap-2 p-1 bg-slate-950 rounded-xl border border-slate-800">
+              <button type="button" id="loginRoleStaff" onclick="selectLoginRole('staff')" class="py-2 rounded-lg text-xs font-bold transition-all bg-sky-500 text-white shadow">
+                <i class="fa-solid fa-user-tie mr-1"></i> Perangkat Desa
+              </button>
+              <button type="button" id="loginRoleKades" onclick="selectLoginRole('kades')" class="py-2 rounded-lg text-xs font-bold transition-all text-slate-400 hover:text-white">
+                <i class="fa-solid fa-user-shield mr-1"></i> Kades / Sekdes
+              </button>
+            </div>
+          </div>
+
+          <!-- Input NIP -->
+          <div>
+            <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">NIP / ID Perangkat Desa</label>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+                <i class="fa-solid fa-id-card"></i>
+              </div>
+              <input type="text" id="inputNIP" required placeholder="Masukkan NIP (Contoh: 19880412...)" class="w-full pl-10 pr-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-sm font-mono text-white placeholder:text-slate-600 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition">
+            </div>
+          </div>
+
+          <!-- Input PIN / Password -->
+          <div>
+            <div class="flex justify-between items-center mb-1.5">
+              <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider">Kata Sandi / PIN</label>
+              <span class="text-[11px] text-sky-400">Default PIN: 1234</span>
+            </div>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+                <i class="fa-solid fa-lock"></i>
+              </div>
+              <input type="password" id="inputPIN" required placeholder="••••••••" value="1234" class="w-full pl-10 pr-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition">
+            </div>
+          </div>
+
+          <!-- Submit Button -->
+          <button type="submit" class="w-full py-3.5 px-4 bg-sky-500 hover:bg-sky-400 text-white font-bold text-sm rounded-xl shadow-lg shadow-sky-500/20 transition flex items-center justify-center space-x-2">
+            <span>Masuk Ke Sistem</span>
+            <i class="fa-solid fa-arrow-right text-xs"></i>
+          </button>
+        </form>
+
+        <!-- Shortcut Demo Credentials -->
+        <div class="mt-6 pt-5 border-t border-slate-800/80">
+          <p class="text-[11px] font-semibold text-slate-500 text-center mb-3">AKSES DEMO CEPAT (KLIK UNTUK PRESENTASI):</p>
+          <div class="grid grid-cols-2 gap-2">
+            <button onclick="fillDemoCredentials('staff')" class="p-2.5 rounded-xl bg-slate-950/60 border border-slate-800 hover:border-sky-500/50 text-left transition group">
+              <span class="block text-[10px] font-bold text-sky-400">STAFF / PERANGKAT</span>
+              <span class="block text-xs font-semibold text-slate-200 truncate">Zainal Burhani</span>
+              <span class="block text-[10px] font-mono text-slate-500 group-hover:text-slate-400">NIP: 19880412...</span>
+            </button>
+            <button onclick="fillDemoCredentials('kades')" class="p-2.5 rounded-xl bg-slate-950/60 border border-slate-800 hover:border-emerald-500/50 text-left transition group">
+              <span class="block text-[10px] font-bold text-emerald-400">KEPALA DESA</span>
+              <span class="block text-xs font-semibold text-slate-200 truncate">Bapak Kades T</span>
+              <span class="block text-[10px] font-mono text-slate-500 group-hover:text-slate-400">NIP: 19750820...</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer Info -->
+      <p class="text-center text-[11px] text-slate-600 mt-6">
+        D4 Administrasi Publik — FV UNESA Kelompok 3 (Desa Kramat, Bungah, Gresik)
+      </p>
+    </div>
+  </div>
+
+  <!-- ================================================================= -->
+  <!-- 2. MAIN APPLICATION DASHBOARD (SETELAH LOGIN) -->
+  <!-- ================================================================= -->
+  <div id="appContainer" class="hidden flex-col min-h-screen">
+    
+    <!-- HEADER NAVBAR -->
+    <header class="bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-40 shadow-lg">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        
+        <!-- Logo & Title -->
+        <div class="flex items-center space-x-3">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-sky-500 to-emerald-400 flex items-center justify-center text-slate-950 font-black text-lg shadow-md">
+            <i class="fa-solid fa-layer-group"></i>
+          </div>
+          <div>
+            <h1 class="font-bold text-sm sm:text-base leading-tight tracking-tight">SIMPEG DESA KRAMAT</h1>
+            <p class="text-[10px] sm:text-xs text-slate-400 font-medium">Bungah, Kab. Gresik — Module E-Logbook</p>
+          </div>
+        </div>
+
+        <!-- User Profile & Action Controls -->
+        <div class="flex items-center space-x-3">
+          <!-- Active Logged User Info Badge -->
+          <div class="hidden sm:flex flex-col text-right">
+            <span id="activeUserName" class="text-xs font-bold text-slate-200">Zainal Burhani, S.AP.</span>
+            <span id="activeUserNIP" class="text-[10px] text-sky-400 font-mono">NIP: 19880412 202103 1 004</span>
+          </div>
+
+          <!-- Share URL Button -->
+          <button onclick="toggleShareModal()" title="Bagikan URL Website ke Kelompok" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-sky-600/80 hover:bg-sky-500 text-white border border-sky-400/40 flex items-center space-x-1 transition shadow">
+            <i class="fa-solid fa-share-nodes"></i>
+            <span class="hidden md:inline">Bagikan URL</span>
+          </button>
+
+          <!-- Role Switcher -->
+          <div class="flex items-center space-x-1 bg-slate-800 p-1 rounded-xl border border-slate-700">
+            <button id="btnRoleStaff" onclick="switchRole('staff')" class="px-2.5 py-1 rounded-lg text-xs font-semibold transition-all duration-200 bg-sky-500 text-white shadow">
+              Perangkat Desa
+            </button>
+            <button id="btnRoleKades" onclick="switchRole('kades')" class="px-2.5 py-1 rounded-lg text-xs font-semibold transition-all duration-200 text-slate-300 hover:text-white">
+              Kades / Admin
+            </button>
+          </div>
+
+          <!-- Logout Button -->
+          <button onclick="handleLogout()" title="Keluar / Ganti NIP" class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-rose-600/80 text-slate-300 hover:text-white border border-slate-700 flex items-center justify-center transition">
+            <i class="fa-solid fa-power-off text-xs"></i>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- MODAL SHARE URL DEPLOYMENT -->
+    <div id="modalShare" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+      <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-lg w-full p-6 relative">
+        <button onclick="toggleShareModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+        
+        <div class="flex items-center space-x-3 mb-4">
+          <div class="w-10 h-10 rounded-xl bg-sky-100 text-sky-600 flex items-center justify-center font-bold text-lg">
+            <i class="fa-solid fa-globe"></i>
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-slate-900">Bagikan Website ke Kelompok</h3>
+            <p class="text-xs text-slate-500">Cara mudah agar prototipe ini bisa diakses bersama</p>
+          </div>
+        </div>
+
+        <div class="space-y-3 text-xs text-slate-600">
+          <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
+            <p class="font-bold text-slate-800 mb-1"><i class="fa-solid fa-bolt text-amber-500 mr-1"></i> Opsi Instant 1 Menit (Tanpa Coding):</p>
+            <p>Upload file <code class="bg-slate-200 px-1 rounded text-slate-900 font-bold">index.html</code> ke <b>tiiny.site</b> atau <b>netlify.com/drop</b> untuk mendapatkan link publik langsung.</p>
+          </div>
+
+          <div class="p-3 bg-sky-50 rounded-xl border border-sky-200 text-sky-900">
+            <p class="font-bold mb-1"><i class="fa-solid fa-cloud-arrow-up text-sky-600 mr-1"></i> Opsi Hosting Gratisan (Vercel / GitHub Pages):</p>
+            <p>Bisa di-host gratis di Vercel/GitHub Pages dengan nama domain khusus seperti: <code class="font-mono bg-white px-1.5 py-0.5 rounded border border-sky-300 font-bold text-sky-700">simpeg-desa-kramat.vercel.app</code></p>
+          </div>
+        </div>
+
+        <div class="mt-5 flex justify-end">
+          <button onclick="toggleShareModal()" class="bg-slate-900 hover:bg-slate-800 text-white font-semibold px-4 py-2 rounded-xl text-xs">Tutup Panduan</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN BODY CONTENT -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6">
+
+      <!-- SYSTEM STATUS BANNER -->
+      <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 rounded-2xl p-5 text-white shadow-md border border-slate-700/60 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div class="flex items-start space-x-3.5">
+          <div class="w-10 h-10 rounded-xl bg-sky-500/20 text-sky-400 flex items-center justify-center font-bold text-lg flex-shrink-0 mt-0.5 border border-sky-500/30">
+            <i class="fa-solid fa-[#0284c7] fa-clock"></i>
+          </div>
+          <div>
+            <div class="flex items-center space-x-2">
+              <span class="text-xs font-semibold text-sky-400 uppercase tracking-wider">Status Presensi SIEKAP Pemkab Gresik</span>
+              <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                ● Presensi Masuk Tervalidasi (08.01 WIB)
+              </span>
+            </div>
+            <h2 class="text-base sm:text-lg font-bold text-slate-100 mt-0.5">Selasa, 10 November 2026</h2>
+            <p class="text-xs text-slate-400">Gunakan SIMPEG Desa ini untuk mengisi E-Logbook & Pengajuan Izin Keluar Kantor agar Presensi Pulang jam 16.00 WIB dapat diotorisasi Kades.</p>
+          </div>
+        </div>
+        <div class="flex items-center space-x-2 bg-slate-950/60 p-2.5 rounded-xl border border-slate-800 flex-shrink-0">
+          <div class="text-right px-2">
+            <div class="text-[10px] text-slate-400 uppercase font-medium">Jam Operasional Balai Desa</div>
+            <div class="text-sm font-bold text-emerald-400 font-mono">08.00 - 16.00 WIB</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================================================================= -->
+      <!-- VIEW A: PERANGKAT DESA (INPUT E-LOGBOOK & IZIN) -->
+      <!-- ================================================================= -->
+      <div id="viewStaff" class="space-y-6">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          
+          <!-- LEFT COLUMN: FORM INPUT E-LOGBOOK -->
+          <div class="lg:col-span-2 space-y-6">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+              <div class="p-5 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+                <div>
+                  <h3 class="font-bold text-slate-900 text-base flex items-center">
+                    <i class="fa-solid fa-pen-to-square text-sky-600 mr-2"></i>
+                    Formulir Laporan Aktivitas Harian (E-Logbook)
+                  </h3>
+                  <p class="text-xs text-slate-500 mt-0.5">Catat rincian pekerjaan pelayanan yang telah Anda selesaikan hari ini.</p>
+                </div>
+                <span class="text-xs font-semibold px-2.5 py-1 bg-sky-50 text-sky-700 rounded-lg border border-sky-100">
+                  Wajib Minimal 1 Tugas/Hari
+                </span>
+              </div>
+
+              <form onsubmit="handleAddLogbook(event)" class="p-6 space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Waktu Pelaksanaan</label>
+                    <div class="grid grid-cols-2 gap-2">
+                      <input type="time" id="logStartTime" required value="08:30" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:outline-none focus:border-sky-500">
+                      <input type="time" id="logEndTime" required value="11:30" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:outline-none focus:border-sky-500">
+                    </div>
+                  </div>
+                  <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Kategori Pelayanan / Tugas</label>
+                    <select id="logCategory" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:outline-none focus:border-sky-500">
+                      <option value="Pelayanan Publik Direct">Pelayanan Publik Direct (Surat/Adminduk)</option>
+                      <option value="Administrasi Surat">Administrasi & Verifikasi Berkas</option>
+                      <option value="Rapat & Koordinasi">Rapat / Musyawarah Internal</option>
+                      <option value="Penugasan Lapangan">Penugasan Fisik Lapangan Desa</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Deskripsi & Output Pekerjaan</label>
+                  <textarea id="logDesc" rows="3" required placeholder="Contoh: Melayani penerbitan 5 Surat Keterangan Usaha (SKU) warga RT 03 dan verifikasi berkas KK." class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-sky-500"></textarea>
+                </div>
+
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Dokumentasi Foto Kegiatan (Opsional)</label>
+                  <div class="flex items-center justify-center w-full">
+                    <label class="flex flex-col items-center justify-center w-full h-24 border-2 border-slate-200 border-dashed rounded-xl cursor-pointer bg-slate-50/50 hover:bg-slate-50 transition">
+                      <div class="flex flex-col items-center justify-center pt-2 pb-3">
+                        <i class="fa-solid fa-cloud-arrow-up text-slate-400 text-xl mb-1"></i>
+                        <p class="text-xs text-slate-500"><span class="font-semibold text-sky-600">Klik untuk upload foto</span> (JPG/PNG)</p>
+                      </div>
+                      <input type="file" class="hidden" accept="image/*" />
+                    </label>
+                  </div>
+                </div>
+
+                <div class="pt-2 flex justify-end">
+                  <button type="submit" class="px-5 py-2.5 bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs rounded-xl shadow-md transition flex items-center space-x-1.5">
+                    <i class="fa-solid fa-plus"></i>
+                    <span>Simpan Ke Logbook Harian</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            <!-- TABLE HASIL LOGBOOK HARIAN SAYA -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+              <div class="p-5 border-b border-slate-100 flex justify-between items-center">
+                <h3 class="font-bold text-slate-900 text-sm">Daftar Aktivitas Terinput Hari Ini</h3>
+                <span id="logCountBadge" class="text-xs font-bold text-sky-600 bg-sky-50 px-2 py-0.5 rounded-full">1 Aktivitas</span>
+              </div>
+              <div class="divide-y divide-slate-100" id="logListContainer">
+                <!-- Log Item 1 -->
+                <div class="p-4 sm:p-5 flex items-start justify-between gap-4 hover:bg-slate-50/50 transition">
+                  <div class="flex items-start space-x-3.5">
+                    <div class="w-8 h-8 rounded-lg bg-sky-100 text-sky-600 flex items-center justify-center font-bold text-xs flex-shrink-0 mt-0.5">
+                      <i class="fa-solid fa-file-signature"></i>
+                    </div>
+                    <div>
+                      <div class="flex items-center space-x-2">
+                        <span class="text-xs font-bold text-slate-900">Pelayanan Publik Direct</span>
+                        <span class="text-[10px] font-semibold text-slate-400 font-mono">08.30 - 11.30 WIB</span>
+                      </div>
+                      <p class="text-xs text-slate-600 mt-1">Melayani pembuatan 5 Surat Keterangan Usaha (SKU) dan verifikasi 3 berkas adm kependudukan.</p>
+                      <span class="inline-block mt-2 text-[10px] font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-100">
+                        <i class="fa-solid fa-check mr-1"></i> Tersimpan di Sistem Internal
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- RIGHT COLUMN: MODUL PERIZINAN KELUAR (MELAUT / SAKELAR) -->
+          <div class="space-y-6">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-5">
+              <div class="border-b border-slate-100 pb-4">
+                <h3 class="font-bold text-slate-900 text-sm flex items-center">
+                  <i class="fa-solid fa-person-walking-arrow-right text-rose-500 mr-2"></i>
+                  Pengajuan Izin Keluar Jam Kerja
+                </h3>
+                <p class="text-xs text-slate-500 mt-1">Digunakan jika Anda harus meninggalkan Balai Desa (misal: melaut/dinas luar) di jam 09.00 - 15.00 WIB.</p>
+              </div>
+
+              <form onsubmit="handleApplyLeave(event)" class="space-y-4">
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Keperluan / Alasan Izin</label>
+                  <select id="leaveReason" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:outline-none focus:border-rose-500">
+                    <option value="Melaut / Sampingan Perekonomian">Pekerjaan Sampingan (Melaut / Menjala)</option>
+                    <option value="Dinas Luar Desa">Tugas Dinas Luar Desa (Kecamatan/Pemkab)</option>
+                    <option value="Urusan Keluarga Urgent">Kepentingan Keluarga Mendadak</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Estimasi Jam Meninggalkan Kantor</label>
+                  <div class="grid grid-cols-2 gap-2">
+                    <input type="time" id="leaveStartTime" required value="10:30" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:outline-none focus:border-rose-500">
+                    <input type="time" id="leaveEndTime" required value="15:30" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:outline-none focus:border-rose-500">
+                  </div>
+                </div>
+
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Perangkat Piket Pengganti (Wajib)</label>
+                  <select id="leaveSubstitute" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:outline-none focus:border-rose-500">
+                    <option value="Salwa Nabila (Kaur TU)">Salwa Nabila (Kaur TU & Umum)</option>
+                    <option value="Nayla Saidah (Kaur Kesra)">Nayla Saidah (Kaur Kesra)</option>
+                    <option value="Wanda Nopitasari (Sekdes)">Wanda Nopitasari (Sekdes)</option>
+                  </select>
+                  <p class="text-[10px] text-slate-400 mt-1">*Menjamin pelayanan balai desa tetap berjalan saat izin.</p>
+                </div>
+
+                <button type="submit" class="w-full py-2.5 px-4 bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs rounded-xl shadow-md transition flex items-center justify-center space-x-1.5">
+                  <i class="fa-solid fa-paper-plane"></i>
+                  <span>Kirim Permohonan Izin Ke Kades</span>
+                </button>
+              </form>
+
+              <!-- REKAP STATUS IZIN SAYA -->
+              <div id="leaveStatusBox" class="p-3.5 bg-slate-50 rounded-xl border border-slate-200 text-xs space-y-1.5">
+                <div class="flex justify-between items-center">
+                  <span class="font-bold text-slate-700">Status Izin Hari Ini:</span>
+                  <span id="leaveStatusBadge" class="font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">Tidak Ada Izin Active</span>
+                </div>
+                <p id="leaveStatusText" class="text-[11px] text-slate-500">Anda saat ini bertugas normal di Balai Desa Kramat.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================================================================= -->
+      <!-- VIEW B: KEPALA DESA / ADMIN (MONITORING & CONTROL DASHBOARD) -->
+      <!-- ================================================================= -->
+      <div id="viewKades" class="hidden space-y-6">
+        
+        <!-- SUMMARY METRICS -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+            <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Perangkat Desa</div>
+            <div class="text-2xl font-extrabold text-slate-900 mt-1">8 Orang</div>
+            <div class="text-[11px] text-emerald-600 font-medium mt-1">100% Terdaftar SIEKAP</div>
+          </div>
+
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+            <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Presensi SIEKAP Masuk</div>
+            <div class="text-2xl font-extrabold text-emerald-600 mt-1">8 / 8</div>
+            <div class="text-[11px] text-slate-500 font-medium mt-1">Presensi Pagi (08.00 WIB)</div>
+          </div>
+
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+            <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Posisi Standby Balai Desa</div>
+            <div class="text-2xl font-extrabold text-sky-600 mt-1">6 Orang</div>
+            <div class="text-[11px] text-sky-700 font-medium mt-1">Siap Pelayanan Publik</div>
+          </div>
+
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+            <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Izin Keluar Jam Kerja</div>
+            <div class="text-2xl font-extrabold text-rose-600 mt-1" id="kadesPendingBadge">1 Orang</div>
+            <div class="text-[11px] text-rose-600 font-medium mt-1">Izin Melaut / Sampingan</div>
+          </div>
+        </div>
+
+        <!-- MAIN MONITORING TABLE -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+          <div class="p-5 border-b border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+            <div>
+              <h3 class="font-bold text-slate-900 text-base">Dashboard Kontrol & Monitoring Perangkat Desa</h3>
+              <p class="text-xs text-slate-500 mt-0.5">Pemantauan real-time antara presensi SIEKAP Pemkab dengan fisik & E-Logbook Desa.</p>
+            </div>
+            <button onclick="refreshKadesTable()" class="px-3 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 rounded-xl text-xs font-semibold text-slate-700 shadow-sm transition">
+              <i class="fa-solid fa-rotate mr-1 text-slate-400"></i> Refresh Data
+            </button>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase tracking-wider">
+                <tr>
+                  <th class="p-4">Perangkat Desa / NIP</th>
+                  <th class="p-4">SIEKAP Masuk</th>
+                  <th class="p-4">E-Logbook Harian</th>
+                  <th class="p-4">Status Keberadaan Fisik</th>
+                  <th class="p-4">Aksi Verifikasi Kades</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100 font-medium" id="kadesTableBody">
+                <!-- ROW 1 -->
+                <tr>
+                  <td class="p-4">
+                    <div class="font-bold text-slate-900 text-sm">Wanda Nopitasari, S.AP.</div>
+                    <div class="text-[10px] text-slate-400 font-mono">Sekretaris Desa | NIP: 19890514 202001 2 003</div>
+                  </td>
+                  <td class="p-4">
+                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                      07.50 WIB
+                    </span>
+                  </td>
+                  <td class="p-4">
+                    <span class="font-semibold text-slate-700">2 Aktivitas Terisi</span>
+                    <div class="text-[10px] text-slate-400">Terakhir: 11.00 WIB</div>
+                  </td>
+                  <td class="p-4">
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">
+                      <i class="fa-solid fa-building text-[10px] mr-1.5"></i> Standby Balai Desa
+                    </span>
+                  </td>
+                  <td class="p-4">
+                    <span class="text-slate-400 font-semibold"><i class="fa-solid fa-check-double text-emerald-500 mr-1"></i> Tervalidasi</span>
+                  </td>
+                </tr>
+
+                <!-- ROW 2: ZAINAL (IZIN PENDING) -->
+                <tr id="rowZainal" class="bg-rose-50/40">
+                  <td class="p-4">
+                    <div class="font-bold text-slate-900 text-sm">Zainal Burhani, S.AP.</div>
+                    <div class="text-[10px] text-slate-400 font-mono">Kasi Pelayanan | NIP: 19880412 202103 1 004</div>
+                  </td>
+                  <td class="p-4">
+                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                      08.02 WIB
+                    </span>
+                  </td>
+                  <td class="p-4">
+                    <span class="font-semibold text-slate-700">1 Aktivitas Terisi</span>
+                    <div class="text-[10px] text-slate-400">Terakhir: 09.30 WIB</div>
+                  </td>
+                  <td class="p-4">
+                    <div>
+                      <span id="badgeZainalStatus" class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-100 text-rose-800">
+                        <i class="fa-solid fa-person-digging text-[10px] mr-1.5"></i> Menunggu Izin Melaut
+                      </span>
+                      <div class="text-[10px] text-slate-500 mt-1">Piket: Salwa Nabila (Kaur TU)</div>
+                    </div>
+                  </td>
+                  <td class="p-4">
+                    <div id="actionZainalBox" class="flex items-center space-x-2">
+                      <button onclick="approveZainalLeave(true)" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold shadow-sm transition">
+                        Setujui Izin
+                      </button>
+                      <button onclick="approveZainalLeave(false)" class="px-3 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg text-xs font-bold transition">
+                        Tolak
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- ROW 3 -->
+                <tr>
+                  <td class="p-4">
+                    <div class="font-bold text-slate-900 text-sm">Salwa Nabila Azzahra</div>
+                    <div class="text-[10px] text-slate-400 font-mono">Kaur TU & Umum | NIP: 19920110 202202 2 005</div>
+                  </td>
+                  <td class="p-4">
+                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                      08.00 WIB
+                    </span>
+                  </td>
+                  <td class="p-4">
+                    <span class="font-semibold text-slate-700">1 Aktivitas Terisi</span>
+                    <div class="text-[10px] text-slate-400">Terakhir: 10.15 WIB</div>
+                  </td>
+                  <td class="p-4">
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">
+                      <i class="fa-solid fa-building text-[10px] mr-1.5"></i> Standby Balai Desa
+                    </span>
+                  </td>
+                  <td class="p-4">
+                    <span class="text-slate-400 font-semibold"><i class="fa-solid fa-check-double text-emerald-500 mr-1"></i> Tervalidasi</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- FOOTER INFO -->
+    <footer class="bg-white border-t border-slate-200 mt-auto py-4">
+      <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-500">
+        Task SIMPEG Kelompok 3 — D4 Administrasi Publik FV UNESA © 2026 Desa Kramat, Bungah, Gresik.
+      </div>
+    </footer>
+  </div>
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="toastNotification" class="hidden fixed bottom-5 right-5 z-50 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-2xl border border-slate-700 flex items-center space-x-3 transition-all duration-300">
+    <div id="toastIcon" class="w-6 h-6 rounded-full bg-emerald-500 text-slate-950 flex items-center justify-center font-bold text-xs">
+      <i class="fa-solid fa-check"></i>
+    </div>
+    <div id="toastText" class="text-xs font-semibold">Pesan Notifikasi</div>
+  </div>
+
+  <!-- ================================================================= -->
+  <!-- JAVASCRIPT APP LOGIC -->
+  <!-- ================================================================= -->
+  <script>
+    // State Application
+    let currentRole = 'staff'; // 'staff' or 'kades'
+    let selectedLoginRole = 'staff';
+    
+    // User Profiles Database (Mock NIP)
+    const mockUsers = {
+      staff: {
+        name: "Zainal Burhani, S.AP.",
+        nip: "19880412 202103 1 004",
+        roleName: "Kasi Pelayanan"
+      },
+      kades: {
+        name: "Bapak Kades T",
+        nip: "19750820 199903 1 001",
+        roleName: "Kepala Desa Kramat"
+      }
+    };
+
+    // 1. Select Role in Login Portal
+    function selectLoginRole(role) {
+      selectedLoginRole = role;
+      const btnStaff = document.getElementById('loginRoleStaff');
+      const btnKades = document.getElementById('loginRoleKades');
+      const nipInput = document.getElementById('inputNIP');
+
+      if (role === 'staff') {
+        btnStaff.className = "py-2 rounded-lg text-xs font-bold transition-all bg-sky-500 text-white shadow";
+        btnKades.className = "py-2 rounded-lg text-xs font-bold transition-all text-slate-400 hover:text-white";
+        nipInput.value = "19880412 202103 1 004";
+      } else {
+        btnKades.className = "py-2 rounded-lg text-xs font-bold transition-all bg-emerald-600 text-white shadow";
+        btnStaff.className = "py-2 rounded-lg text-xs font-bold transition-all text-slate-400 hover:text-white";
+        nipInput.value = "19750820 199903 1 001";
+      }
+    }
+
+    // 2. Fill Demo Credentials
+    function fillDemoCredentials(role) {
+      selectLoginRole(role);
+      document.getElementById('inputPIN').value = "1234";
+      handleLoginSubmit(new Event('submit'));
+    }
+
+    // 3. Submit Login Portal
+    function handleLoginSubmit(event) {
+      if (event) event.preventDefault();
+      
+      currentRole = selectedLoginRole;
+      
+      // Update User Badge Info
+      const user = mockUsers[currentRole];
+      document.getElementById('activeUserName').textContent = user.name;
+      document.getElementById('activeUserNIP').textContent = "NIP: " + user.nip;
+
+      // Hide Login Screen, Show App
+      document.getElementById('screenLogin').classList.add('hidden');
+      document.getElementById('appContainer').classList.remove('hidden');
+      document.getElementById('appContainer').classList.add('flex');
+
+      // Switch View Content
+      switchRole(currentRole);
+      showToast("Selamat Datang, " + user.name);
+    }
+
+    // 4. Logout Handler
+    function handleLogout() {
+      document.getElementById('appContainer').classList.add('hidden');
+      document.getElementById('appContainer').classList.remove('flex');
+      document.getElementById('screenLogin').classList.remove('hidden');
+      showToast("Anda telah keluar dari akun.");
+    }
+
+    // 5. Switch Role View
+    function switchRole(role) {
+      currentRole = role;
+      const btnStaff = document.getElementById('btnRoleStaff');
+      const btnKades = document.getElementById('btnRoleKades');
+      const viewStaff = document.getElementById('viewStaff');
+      const viewKades = document.getElementById('viewKades');
+
+      if (role === 'staff') {
+        btnStaff.className = "px-2.5 py-1 rounded-lg text-xs font-semibold transition-all duration-200 bg-sky-500 text-white shadow";
+        btnKades.className = "px-2.5 py-1 rounded-lg text-xs font-semibold transition-all duration-200 text-slate-300 hover:text-white";
+        viewStaff.classList.remove('hidden');
+        viewKades.classList.add('hidden');
+      } else {
+        btnKades.className = "px-2.5 py-1 rounded-lg text-xs font-semibold transition-all duration-200 bg-emerald-600 text-white shadow";
+        btnStaff.className = "px-2.5 py-1 rounded-lg text-xs font-semibold transition-all duration-200 text-slate-300 hover:text-white";
+        viewKades.classList.remove('hidden');
+        viewStaff.classList.add('hidden');
+      }
+    }
+
+    // 6. Handle Add Logbook
+    function handleAddLogbook(event) {
+      event.preventDefault();
+      const category = document.getElementById('logCategory').value;
+      const startTime = document.getElementById('logStartTime').value;
+      const endTime = document.getElementById('logEndTime').value;
+      const desc = document.getElementById('logDesc').value;
+
+      const container = document.getElementById('logListContainer');
+      const newItem = document.createElement('div');
+      newItem.className = "p-4 sm:p-5 flex items-start justify-between gap-4 bg-sky-50/30 hover:bg-slate-50/50 transition border-b border-slate-100";
+      newItem.innerHTML = `
+        <div class="flex items-start space-x-3.5">
+          <div class="w-8 h-8 rounded-lg bg-sky-100 text-sky-600 flex items-center justify-center font-bold text-xs flex-shrink-0 mt-0.5">
+            <i class="fa-solid fa-check"></i>
+          </div>
+          <div>
+            <div class="flex items-center space-x-2">
+              <span class="text-xs font-bold text-slate-900">${category}</span>
+              <span class="text-[10px] font-semibold text-slate-400 font-mono">${startTime} - ${endTime} WIB</span>
+            </div>
+            <p class="text-xs text-slate-600 mt-1">${desc}</p>
+            <span class="inline-block mt-2 text-[10px] font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-100">
+              <i class="fa-solid fa-check mr-1"></i> Tersimpan di Sistem Internal
+            </span>
+          </div>
+        </div>
+      `;
+      container.prepend(newItem);
+      document.getElementById('logDesc').value = "";
+      showToast("Berhasil menyimpan logbook harian!");
+    }
+
+    // 7. Handle Apply Leave
+    function handleApplyLeave(event) {
+      event.preventDefault();
+      const reason = document.getElementById('leaveReason').value;
+      const startTime = document.getElementById('leaveStartTime').value;
+      const endTime = document.getElementById('leaveEndTime').value;
+      const substitute = document.getElementById('leaveSubstitute').value;
+
+      document.getElementById('leaveStatusBadge').className = "font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded border border-amber-300";
+      document.getElementById('leaveStatusBadge').textContent = "Menunggu Persetujuan Kades";
+      document.getElementById('leaveStatusText').textContent = `Pengajuan izin (${reason}) jam ${startTime}-${endTime} WIB (Piket: ${substitute}).`;
+
+      showToast("Permohonan izin berhasil dikirim ke Kades!");
+    }
+
+    // 8. Approve / Reject Leave by Kades
+    function approveZainalLeave(approved) {
+      const row = document.getElementById('rowZainal');
+      const badge = document.getElementById('badgeZainalStatus');
+      const actionBox = document.getElementById('actionZainalBox');
+      const pendingBadge = document.getElementById('kadesPendingBadge');
+
+      if (approved) {
+        row.className = "bg-amber-50/40";
+        badge.className = "inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800";
+        badge.innerHTML = `<i class="fa-solid fa-circle-check text-[10px] mr-1.5"></i> Izin Melaut Disetujui (${document.getElementById('leaveStartTime').value} WIB)`;
+        actionBox.innerHTML = `<span class="text-xs font-bold text-emerald-600"><i class="fa-solid fa-check mr-1"></i> Disetujui Kades</span>`;
+        pendingBadge.textContent = "0 Orang";
+        showToast("Izin melaut disetujui!");
+      } else {
+        row.className = "";
+        badge.className = "inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700";
+        badge.innerHTML = `<i class="fa-solid fa-xmark text-[10px] mr-1.5"></i> Izin Ditolak (Wajib Standby)`;
+        actionBox.innerHTML = `<span class="text-xs font-bold text-rose-600"><i class="fa-solid fa-xmark mr-1"></i> Ditolak</span>`;
+        pendingBadge.textContent = "0 Orang";
+        showToast("Izin ditolak. Perangkat wajib di Balai Desa.");
+      }
+    }
+
+    // 9. Toast Notification Helper
+    function showToast(message) {
+      const toast = document.getElementById('toastNotification');
+      document.getElementById('toastText').textContent = message;
+      toast.classList.remove('hidden');
+      setTimeout(() => {
+        toast.classList.add('hidden');
+      }, 3000);
+    }
+
+    // 10. Toggle Share Modal
+    function toggleShareModal() {
+      document.getElementById('modalShare').classList.toggle('hidden');
+    }
+
+    // 11. Refresh Kades Table
+    function refreshKadesTable() {
+      showToast("Data monitoring berhasil diperbarui.");
+    }
+  </script>
+</body>
+</html>
